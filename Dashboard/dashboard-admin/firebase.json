@@ -1,0 +1,9 @@
+{
+  "hosting": [
+    {
+      "target": "dashboard-admin",
+      "source": ".",
+      "frameworksBackend": {}
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+<div id="container">
+    <div class="logo">
+        <img src="../../../assets/title.png" alt="">
+    </div>
+
+    <div class="options">
+        @for (choice of options; track $index;) {
+        <div class="choice" (click)="navTo(choice.route)"
+            [ngStyle]="{'background-color': choice.route == this.router.url ? 'var(--grey100)' : 'none'}">
+            <img src={{choice.icon}} alt="">
+            <p> {{choice.name}}</p>
+        </div>
+        }
+    </div>
+
+
+    <div class="setting-logout">
+        <div (click)="logout()" class="logout-button">
+            <img src="../../../assets/logout.png" alt="">
+            <p>Logout</p>
+        </div>
+        <div class="version">
+            <p>Version: 1.0</p>
+            <p>Powered: GDSC x RWC</p>
+        </div>
+    </div>
+</div>

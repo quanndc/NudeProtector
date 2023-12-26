@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+</head>
+<body>
+    <div class="g-signin2" data-onsuccess="onSignIn"></div>
+
+    <script>
+        function onSignIn(googleUser) {
+            // This function will be called when the user signs in
+            var profile = googleUser.getBasicProfile();
+            console.log('ID: ' + profile.getId()); // Google Account ID
+            console.log('Name: ' + profile.getName());
+            console.log('Email: ' + profile.getEmail());
+        }
+    </script>
+</body>
+</html>

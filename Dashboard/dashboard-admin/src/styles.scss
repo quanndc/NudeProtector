@@ -1,0 +1,33 @@
+/* You can add global styles to this file, and also import other style files */
+* {
+    font-family: 'Source Sans 3', sans-serif;
+}
+
+body{
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+:root {
+    //Color
+    --primaryColor: #D91B5C;
+    --secondColor: #A01C46;
+    --primaryRed: #ea4335;
+    --primaryBlue: #4285f4;
+    --primaryGreen: #34a853;
+    --primaryYellow: #f9ab00;
+
+    --secondRed: #f28b82;
+    --secondBlue: #8ab4f8;
+    --secondGreen: #81c995;
+    --secondYellow: #fde293;
+
+    --white: #ffffff;
+    --black: #000000;
+    --grey700: #5f6368;
+    --grey100: #f6f6f6;
+}
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

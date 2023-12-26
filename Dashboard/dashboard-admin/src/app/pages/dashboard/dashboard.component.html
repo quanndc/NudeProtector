@@ -1,0 +1,34 @@
+<div id="container">
+  <app-navbar></app-navbar>
+
+  <div id="body">
+    <div class="dropdown">
+      <button (click)="filterByYear()" class="dropbtn">
+        Yearly
+      </button>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Monthly</button>
+      <div class="dropdown-content">
+        @for (month of months; track $index) {
+        <a (click)="filterByMonth(month)">{{month.month}}</a>
+        }
+      </div>
+    </div>
+
+    <div id="chart">
+      @if (this.showYear) {
+      <apx-chart [series]="chart.series" [chart]="chart.chart" [dataLabels]="chart.dataLabels"
+        [plotOptions]="chart.plotOptions" [yaxis]="chart.yaxis" [xaxis]="chart.xaxis" [fill]="chart.fill"
+        [title]="chart.title"></apx-chart>
+      }@else {}
+      @if (this.showMonth) {
+      <apx-chart [series]="chart2.series" [chart]="chart2.chart" [dataLabels]="chart2.dataLabels"
+        [plotOptions]="chart2.plotOptions" [yaxis]="chart2.yaxis" [xaxis]="chart2.xaxis" [fill]="chart2.fill"
+        [title]="chart2.title"></apx-chart>
+      }@else {
+      }
+    </div>
+  </div>
+</div>

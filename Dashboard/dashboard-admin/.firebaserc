@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "express-af77b": {
+      "hosting": {
+        "dashboard-admin": [
+          "express-af77b"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "express-af77b"
+  }
+}

@@ -1,0 +1,22 @@
+<div id="container">
+    <!-- <app-navbar></app-navbar> -->
+
+    <div id="body">
+        <button  (click)="clickEvent()" class="button">
+          Show chart
+        </button>
+
+        <div id="chart">
+            <apx-chart
+              [series]="chart.series"
+              [chart]="chart.chart"
+              [dataLabels]="chart.dataLabels"
+              [plotOptions]="chart.plotOptions"
+              [yaxis]="chart.yaxis"
+              [xaxis]="chart.xaxis"
+              [fill]="chart.fill"
+              [title]="chart.title"
+            ></apx-chart>
+          </div>
+    </div>
+</div>

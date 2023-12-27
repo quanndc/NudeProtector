@@ -19,13 +19,14 @@ import {
   Timestamp,
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 interface Item {
   visitorId: string;
   time: Timestamp;
   urls: [];
-  censored: number;
-  uncensored: number;
+  countCensored: number;
+  countUncensored: number;
 }
 
 type ChartOptions = {
@@ -47,6 +48,11 @@ type ChartOptions = {
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit {
+  deviceId = '';
+
+  constructor(private http: HttpClient) {
+    console.log(this.deviceId);
+  }
   chart: ChartOptions = {
     animations: {
       enabled: true,
@@ -330,83 +336,66 @@ export class DashboardComponent implements OnInit {
   uncensored = 0;
 
   ngOnInit(): void {
+    this.http.get('http://localhost:8080/').subscribe((res: any) => {
+      console.log(res);
+      this.deviceId = res['id'];
+    });
     const itemCollection = collection(this.firestore, 'images');
     this.item$ = collectionData(itemCollection) as Observable<Item[]>;
-    this.item$.subscribe((items: any) => {
-      this.chart.series = [
-        {
-          name: 'Total',
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        },
-        {
-          name: 'Censored',
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        },
-        {
-          name: 'Uncensored',
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        },
-      ];
-      this.chart2.series = [
-        {
-          name: 'Total',
-          data: [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0,
-          ],
-        },
-        {
-          name: 'Censored',
-          data: [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0,
-          ],
-        },
-        {
-          name: 'Uncensored',
-          data: [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0,
-          ],
-        },
-      ];
-      // console.log(items)
-      items.forEach((item: any) => {
-        for (let i = 1; i <= 12; i++) {
-          if (item.time.toDate().getMonth() == i) {
-            this.count += item.urls.length;
-            this.censored += item.countCensored;
-            this.uncensored += item.countUncensored;
-            this.month = i;
-
-            this.chart.series[0].data[this.month] = this.count;
-            this.chart.series[1].data[this.month] = this.censored;
-            this.chart.series[2].data[this.month] = this.uncensored;
+    const subscription = this.item$.subscribe({
+      next: (items) => {
+        this.chart.series = [
+          {
+            name: 'Total',
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          },
+          {
+            name: 'Censored',
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          },
+          {
+            name: 'Uncensored',
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          },
+        ];
+        this.chart2.series = [
+          {
+            name: 'Total',
+            data: [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ],
+          },
+          {
+            name: 'Censored',
+            data: [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ],
+          },
+          {
+            name: 'Uncensored',
+            data: [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ],
+          },
+        ];
+        items.forEach((item: any) => {
+          if (item.visitorId == this.deviceId) {
+            for (let i = 1; i <= 12; i++) {
+              if (item.time.toDate().getMonth() == i) {
+                this.chart.series[0].data[i] += item.urls.length;
+                this.chart.series[1].data[i] += item.countCensored;
+                this.chart.series[2].data[i] += item.countUncensored;
+              }
+            }
           }
-        }
-      });
-
-      this.count = 0;
-      this.censored = 0;
-      this.uncensored = 0;
-
-      items.forEach((item: any) => {
-        for (let i = 1; i <= 31; i++) {
-          if (item.time.toDate().getDate() == i) {
-            console.log(item.time.toDate().getDate());
-            this.count += item.urls.length;
-            this.censored += item.countCensored;
-            this.uncensored += item.countUncensored;
-            this.day = i;
-            this.chart2.series[0].data[this.day - 1] = this.count;
-            this.chart2.series[1].data[this.day - 1] = this.censored;
-            this.chart2.series[2].data[this.day - 1] = this.uncensored;
-          }
-        }
-      });
-      this.count = 0;
-      this.censored = 0;
-      this.uncensored = 0;
+        });
+      },
+      complete() {
+        subscription.unsubscribe();
+      },
     });
   }
 
@@ -466,111 +455,123 @@ export class DashboardComponent implements OnInit {
   filterByMonth(month: any) {
     this.showYear = false;
     this.showMonth = true;
-    const itemCollection = collection(this.firestore, 'images');
-    this.item$ = collectionData(itemCollection) as Observable<Item[]>;
-    this.item$.subscribe((items: any) => {
-      (this.chart2.title = {
-        text: 'Daily Nudity Statistics' + ' - ' + month.month,
-        floating: false,
-        offsetY: 5,
-        align: 'center',
-        style: {
-          color: '#444',
-        },
-      }),
-        console.log(this.chart2.title.text);
-      this.chart2.series = [
-        {
-          name: 'Total',
-          data: [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0,
-          ],
-        },
-        {
-          name: 'Censored',
-          data: [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0,
-          ],
-        },
-        {
-          name: 'Uncensored',
-          data: [
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0,
-          ],
-        },
-      ];
-
-      items.forEach((item: any) => {
-        console.log(item.time.toDate().getMonth())
-        if (parseInt(item.time.toDate().getMonth()) == (month.value-1)) {
-          console.log(item.time.toDate().getMonth());
-          for (let i = 1; i <= 31; i++) {
-            if (item.time.toDate().getDate() == i) {
-              console.log(item);
-              this.count += item.urls.length;
-              this.censored += item.countCensored;
-              this.uncensored += item.countUncensored;
-              this.day = i;
-              this.chart2.series[0].data[this.day - 1] = this.count;
-              this.chart2.series[1].data[this.day - 1] = this.censored;
-              this.chart2.series[2].data[this.day - 1] = this.uncensored;
+    const subscription = this.item$.subscribe({
+      next: (items) => {
+        (this.chart2.title = {
+          text: 'Daily Nudity Statistics' + ' - ' + month.month,
+          floating: false,
+          offsetY: 5,
+          align: 'center',
+          style: {
+            color: '#444',
+          },
+        }),
+          (this.chart2.series = [
+            {
+              name: 'Total',
+              data: [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              ],
+            },
+            {
+              name: 'Censored',
+              data: [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              ],
+            },
+            {
+              name: 'Uncensored',
+              data: [
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              ],
+            },
+          ]);
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].visitorId == this.deviceId) {
+            let monthValue = items[i].time.toDate().getMonth();
+            monthValue += 1;
+            if (monthValue == month.value) {
+              // console.log(items[i].time.toDate().getDate());
+              for (let j = 1; j <= 31; j++) {
+                if (j == items[i].time.toDate().getDate()) {
+                  this.day = j;
+                  this.chart2.series[0].data[j - 1] += items[i].urls.length;
+                  this.chart2.series[1].data[j - 1] += items[i].countCensored;
+                  this.chart2.series[2].data[j - 1] += items[i].countUncensored;
+                }
+              }
+            } else {
+              continue;
             }
           }
         }
-      });
-      this.count = 0;
-      this.censored = 0;
-      this.uncensored = 0;
+      },
+      complete() {
+        subscription.unsubscribe();
+      },
     });
   }
 
   filterByYear() {
     this.showYear = true;
     this.showMonth = false;
-
-    // this.showYear = !this.showYear;
-    // this.showMonth = !this.showMonth;
-    const itemCollection = collection(this.firestore, 'images');
-    this.item$ = collectionData(itemCollection) as Observable<Item[]>;
-    this.item$.subscribe((items: any) => {
-      this.chart.series = [
-        {
-          name: 'Total',
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        },
-        {
-          name: 'Censored',
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        },
-        {
-          name: 'Uncensored',
-          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        },
-      ];
-
-      items.forEach((item: any) => {
-        for (let i = 1; i <= 12; i++) {
-          if (item.time.toDate().getMonth() == i) {
-            this.count += item.urls.length;
-            this.censored += item.countCensored;
-            this.uncensored += item.countUncensored;
-            this.month = i;
-
-            this.chart.series[0].data[this.month] = this.count;
-            this.chart.series[1].data[this.month] = this.censored;
-            this.chart.series[2].data[this.month] = this.uncensored;
+    const subscription = this.item$.subscribe({
+      next: (items) => {
+        this.chart.series = [
+          {
+            name: 'Total',
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          },
+          {
+            name: 'Censored',
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          },
+          {
+            name: 'Uncensored',
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          },
+        ];
+        this.chart2.series = [
+          {
+            name: 'Total',
+            data: [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ],
+          },
+          {
+            name: 'Censored',
+            data: [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ],
+          },
+          {
+            name: 'Uncensored',
+            data: [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ],
+          },
+        ];
+        items.forEach((item: any) => {
+          if (item.visitorId == this.deviceId) {
+            for (let i = 1; i <= 12; i++) {
+              if (item.time.toDate().getMonth() == i) {
+                this.chart.series[0].data[i] += item.urls.length;
+                this.chart.series[1].data[i] += item.countCensored;
+                this.chart.series[2].data[i] += item.countUncensored;
+              }
+            }
           }
-        }
-      });
-
-      this.count = 0;
-      this.censored = 0;
-      this.uncensored = 0;
+        });
+      },
+      complete() {
+        subscription.unsubscribe();
+      },
     });
   }
-
-  constructor() {}
 }

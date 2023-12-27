@@ -93,8 +93,9 @@ window.onload = (async () => {
       } else {
         bodyJson["score"] = cachedItem;
       }
+      // 
       if (bodyJson["score"] > 0.1) {
-        img.src = "https://i.imgur.com/FuWAXrf.png";
+        img.src = "https://i.ibb.co/V2zvcrr/3f1634ef9034386a6125.jpg";
         countCensored++;
       } else {
         img.src = originalUrls[i];
